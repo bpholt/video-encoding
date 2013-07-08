@@ -1,0 +1,36 @@
+TestCase("wikipedia scraper", {
+    'test parser': function () {
+
+        var markup = '<table class="wikitable plainrowheaders">' +
+                '<tr class="vevent">' +
+                    '<th scope="row" id="ep1">1</th>' +
+                    '<td>1</td>' +
+                    '<td class="summary">"<a href="/wiki/Pilot_(Brian’s_TV_Show)" title="Pilot (Brian’s TV Show)">Pilot</a>"</td>' +
+                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
+                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
+                    '<td>September&nbsp;10,&nbsp;2013<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2013-09-10</span>)</span></td>' +
+                    '<td id="pc1BPH42">1BPH42</td>' +
+                    '<td>51.98<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td class="description" colspan="8">Brian and Devon make a TV show.</td>' +
+                '</tr>' +
+            '</table>';
+
+        $('body').html(markup);
+
+        var output = wikiscrape();
+
+        assertEquals(1, output.length);
+        assertEquals(1, output[0].length);
+        var episode = output[0][0];
+        assertEquals('S01E01', episode.seID);
+        assertEquals('Pilot', episode.title);
+        assertEquals('Brian Holt', episode.director);
+        assertEquals('Devon Sharma', episode.writer);
+        assertEquals('1BPH42', episode.productionCode);
+        assertEquals('Brian and Devon make a TV show.', episode.description);
+        assertEquals('2013-09-10', episode.originalAirDate);
+        assertEquals('S01E01*Pilot*2013-09-10*1BPH42*Brian and Devon make a TV show.', episode.toString());
+    }
+});
