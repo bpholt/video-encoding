@@ -1,5 +1,5 @@
 (function (global, $) {
-    "use strict";
+    'use strict';
 
     function interpolate(s, data) {
         for(var variable in data) {
@@ -10,7 +10,7 @@
     }
 
     function zeroPad(n) {
-        return n < 10 ? "0" + n : n;
+        return n < 10 ? '0' + n : n;
     }
 
     function episodeToString() {
@@ -21,15 +21,15 @@
         return function (i, e) {
             var $e = $(e),
                 episode = {},
-                $cells = $e.find("th, td").map(function (i, e) { return $(e); });
+                $cells = $e.find('th, td').map(function (i, e) { return $(e); });
 
-            episode.seID = "S" + zeroPad(seasonNumber) + "E" + zeroPad($cells[1].text());
+            episode.seID = 'S' + zeroPad(seasonNumber) + 'E' + zeroPad($cells[1].text());
             episode.title = $cells[2].text().replace(/"/g, '');
             episode.director = $cells[3].text();
             episode.writer = $cells[4].text();
             episode.originalAirDate = $cells[5].find('.bday').text();
             episode.productionCode = $cells[6].text();
-            episode.description = $e.next().find(".description").text();
+            episode.description = $e.next().find('.description').text();
             episode.toString = episodeToString;
 
             return episode;
@@ -41,13 +41,13 @@
     }
 
     function season(i, e) {
-        var episodes = $(e).find("tr.vevent").map(episodeCurrier(i + 1));
+        var episodes = $(e).find('tr.vevent').map(episodeCurrier(i + 1));
         episodes.toString = arrayToString;
         return episodes;
     }
 
     function init() {
-        var seasons = $("table.wikitable.plainrowheaders").map(season);
+        var seasons = $('table.wikitable.plainrowheaders').map(season);
         seasons.toString = arrayToString;
         return seasons;
     }
