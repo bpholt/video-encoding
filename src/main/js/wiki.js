@@ -1,22 +1,20 @@
 (function (global, $) {
     "use strict";
 
-    $.extend({
-        interpolate: function(s, data) {
-            for(var variable in data) {
-                s = s.replace(new RegExp('{' + variable + '}','g'), data[variable]);
-            }
-
-            return s;
+    function interpolate(s, data) {
+        for(var variable in data) {
+            s = s.replace(new RegExp('{' + variable + '}','g'), data[variable]);
         }
-    });
+
+        return s;
+    }
 
     function zeroPad(n) {
         return n < 10 ? "0" + n : n;
     }
 
     function episodeToString() {
-        return $.interpolate('{seID}*{title}*{originalAirDate}*{productionCode}*{description}', this);
+        return interpolate('{seID}*{title}*{originalAirDate}*{productionCode}*{description}', this);
     }
 
     function episodeCurrier(seasonNumber) {
@@ -38,14 +36,20 @@
         };
     }
 
+    function arrayToString() {
+        return this.map(function () { return this.toString(); }).get().join('\n');
+    }
+
     function season(i, e) {
         var episodes = $(e).find("tr.vevent").map(episodeCurrier(i + 1));
-        return  episodes;
+        episodes.toString = arrayToString;
+        return episodes;
     }
 
     function init() {
         var seasons = $("table.wikitable.plainrowheaders").map(season);
-        return  seasons;
+        seasons.toString = arrayToString;
+        return seasons;
     }
 
     global.wikiscrape = init;

@@ -1,23 +1,7 @@
 TestCase("wikipedia scraper", {
     'test parser': function () {
 
-        var markup = '<table class="wikitable plainrowheaders">' +
-                '<tr class="vevent">' +
-                    '<th scope="row" id="ep1">1</th>' +
-                    '<td>1</td>' +
-                    '<td class="summary">"<a href="/wiki/Pilot_(Brian’s_TV_Show)" title="Pilot (Brian’s TV Show)">Pilot</a>"</td>' +
-                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
-                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
-                    '<td>September&nbsp;10,&nbsp;2013<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2013-09-10</span>)</span></td>' +
-                    '<td id="pc1BPH42">1BPH42</td>' +
-                    '<td>51.98<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
-                '</tr>' +
-                '<tr>' +
-                    '<td class="description" colspan="8">Brian and Devon make a TV show.</td>' +
-                '</tr>' +
-            '</table>';
-
-        $('body').html(markup);
+        $('body').html(this.markup['singleRow']);
 
         var output = wikiscrape();
 
@@ -32,5 +16,124 @@ TestCase("wikipedia scraper", {
         assertEquals('Brian and Devon make a TV show.', episode.description);
         assertEquals('2013-09-10', episode.originalAirDate);
         assertEquals('S01E01*Pilot*2013-09-10*1BPH42*Brian and Devon make a TV show.', episode.toString());
+    },
+
+    'test season toString': function () {
+        $('body').html(this.markup['multipleRows']);
+
+        var output = wikiscrape();
+        assertEquals(output[0][0].toString() + '\n' + output[0][1].toString(), output[0].toString());
+    },
+
+    'test multiple seasons toString': function () {
+        $('body').html(this.markup['multipleTables']);
+
+        var output = wikiscrape();
+        assertEquals(output[0].toString() + '\n' + output[1].toString(), output.toString());
+    },
+
+    markup: {
+        singleRow:
+            '<table class="wikitable plainrowheaders">' +
+                '<tr class="vevent">' +
+                    '<th scope="row" id="ep1">1</th>' +
+                    '<td>1</td>' +
+                    '<td class="summary">"<a href="/wiki/Pilot_(Brian’s_TV_Show)" title="Pilot (Brian’s TV Show)">Pilot</a>"</td>' +
+                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
+                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
+                    '<td>September&nbsp;10,&nbsp;2013<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2013-09-10</span>)</span></td>' +
+                    '<td id="pc1BPH42">1BPH42</td>' +
+                    '<td>51.98<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td class="description" colspan="8">Brian and Devon make a TV show.</td>' +
+                '</tr>' +
+            '</table>',
+        multipleRows:
+            '<table class="wikitable plainrowheaders">' +
+                '<tr class="vevent">' +
+                    '<th scope="row" id="ep1">1</th>' +
+                    '<td>1</td>' +
+                    '<td class="summary">"<a href="/wiki/Pilot_(Brian’s_TV_Show)" title="Pilot (Brian’s TV Show)">Pilot</a>"</td>' +
+                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
+                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
+                    '<td>September&nbsp;10,&nbsp;2013<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2013-09-10</span>)</span></td>' +
+                    '<td id="pc1BPH42">1BPH42</td>' +
+                    '<td>51.98<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td class="description" colspan="8">Brian and Devon make a TV show.</td>' +
+                '</tr>' +
+                '<tr class="vevent">' +
+                    '<th scope="row" id="ep2">2</th>' +
+                    '<td>2</td>' +
+                    '<td class="summary">"<a href="/wiki/Episode 2" title="Episode 2">Episode 2</a>"</td>' +
+                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
+                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
+                    '<td>September&nbsp;17,&nbsp;2013<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2013-09-17</span>)</span></td>' +
+                    '<td id="pc1BPH42">1BPH43</td>' +
+                    '<td>105.2<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td class="description" colspan="8">Brian and Devon\'s TV show continues!</td>' +
+                '</tr>' +
+            '</table>',
+        multipleTables:
+            '<table class="wikitable plainrowheaders">' +
+                '<tr class="vevent">' +
+                    '<th scope="row" id="ep1">1</th>' +
+                    '<td>1</td>' +
+                    '<td class="summary">"<a href="/wiki/Pilot_(Brian’s_TV_Show)" title="Pilot (Brian’s TV Show)">Pilot</a>"</td>' +
+                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
+                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
+                    '<td>September&nbsp;10,&nbsp;2013<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2013-09-10</span>)</span></td>' +
+                    '<td id="pc1BPH42">1BPH42</td>' +
+                    '<td>51.98<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td class="description" colspan="8">Brian and Devon make a TV show.</td>' +
+                '</tr>' +
+                '<tr class="vevent">' +
+                    '<th scope="row" id="ep2">2</th>' +
+                    '<td>2</td>' +
+                    '<td class="summary">"<a href="/wiki/Episode 2" title="Episode 2">Episode 2</a>"</td>' +
+                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
+                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
+                    '<td>September&nbsp;17,&nbsp;2013<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2013-09-17</span>)</span></td>' +
+                    '<td id="pc1BPH42">1BPH43</td>' +
+                    '<td>105.2<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td class="description" colspan="8">Brian and Devon\'s TV show continues!</td>' +
+                '</tr>' +
+            '</table>' +
+            '<table class="wikitable plainrowheaders">' +
+                '<tr class="vevent">' +
+                    '<th scope="row" id="ep1">1</th>' +
+                    '<td>1</td>' +
+                    '<td class="summary">"<a href="/wiki/Season_2_Wow" title="Season 2 Wow">Season 2 Wow</a>"</td>' +
+                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
+                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
+                    '<td>March&nbsp;11,&nbsp;2014<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2014-03-11</span>)</span></td>' +
+                    '<td id="pc1BPH42">2BPH49</td>' +
+                    '<td>0.56<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td class="description" colspan="8">Ratings plummit in season 2.</td>' +
+                '</tr>' +
+                '<tr class="vevent">' +
+                    '<th scope="row" id="ep2">2</th>' +
+                    '<td>2</td>' +
+                    '<td class="summary">"<a href="/wiki/Series_Finale" title="Series Finale">Series Finale</a>"</td>' +
+                    '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
+                    '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
+                    '<td>March&nbsp;18,&nbsp;2014<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2014-03-18</span>)</span></td>' +
+                    '<td id="pc1BPH42">2BPH50</td>' +
+                    '<td>98.2<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td class="description" colspan="8">The show is canceled.</td>' +
+                '</tr>' +
+            '</table>'
     }
 });
