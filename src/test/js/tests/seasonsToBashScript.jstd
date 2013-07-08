@@ -1,0 +1,69 @@
+TestCase('seasons to bash script', {
+    'test function': function () {
+        assertFunction(convertToBashScript);
+    },
+
+    'test function generates script for seasons': function () {
+        var output = convertToBashScript(this.seasons);
+        assertEquals("seasons converted to commands", this.baseCommand + ' ' + this.filename, output);
+    },
+
+    'test options add show, picture, network': function () {
+        var options = {
+                show: 'Brian’s Show',
+                picture: '/path/to/picture',
+                network: 'NBC'
+            },
+            commandAddition = ' -S "' + options.show + '" -P "' + options.picture + '" -N "' + options.network + '"';
+
+        var output = convertToBashScript(this.seasons, options);
+        assertEquals("seasons converted to commands", this.baseCommand + commandAddition + ' ' + this.filename, output);
+    },
+
+    'test newlines and extra whitespace are cleaned from input': function () {
+        var badInput = [
+                [
+                    {
+                        season: 1,
+                        episode: 3,
+                        seID: 'S01E03',
+                        title: 'my \ntitle',
+                        director: 'Brian \nHolt',
+                        writer: 'Devon \n    Sharma',
+                        originalAirDate: '2013-\n09-10',
+                        productionCode: '1B\nPH42',
+                        description: 'This sh\now is great!'
+                    }
+                ]
+            ];
+
+        var output = convertToBashScript(badInput);
+        assertEquals("seasons converted to commands", this.baseCommand + ' ' + this.filename, output);
+    },
+
+    'test #! is added when requested': function () {
+        var output = convertToBashScript(this.seasons, {exec: true});
+        assertEquals("seasons converted to commands", this.shbang + this.baseCommand + ' ' + this.filename, output);
+    },
+
+    seasons: [
+        [
+            {
+                season: 1,
+                episode: 3,
+                seID: 'S01E03',
+                title: 'my title',
+                director: 'Brian Holt',
+                writer: 'Devon Sharma',
+                originalAirDate: '2013-09-10',
+                productionCode: '1BPH42',
+                description: 'This show is great!'
+            }
+        ]
+    ],
+
+    shbang: '#!/bin/sh\n',
+    baseCommand: 'mp4tags -n 1 -M 3 -s "my title" -a "Brian Holt" -w "Devon Sharma" -o "1BPH42" -m "This show is great!"',
+    filename: 'S01E03.m4v'
+
+});

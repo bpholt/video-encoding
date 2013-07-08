@@ -3,7 +3,9 @@
 
     function interpolate(s, data) {
         for(var variable in data) {
-            s = s.replace(new RegExp('{' + variable + '}','g'), data[variable]);
+            if (data.hasOwnProperty(variable)) {
+                s = s.replace(new RegExp('{' + variable + '}','g'), data[variable]);
+            }
         }
 
         return s;
@@ -21,9 +23,12 @@
         return function (i, e) {
             var $e = $(e),
                 episode = {},
-                $cells = $e.find('th, td').map(function (i, e) { return $(e); });
+                $cells = $e.find('th, td').map(function (i, e) { return $(e); }),
+                episodeNumber = $cells[1].text();
 
-            episode.seID = 'S' + zeroPad(seasonNumber) + 'E' + zeroPad($cells[1].text());
+            episode.season = seasonNumber;
+            episode.episode = episodeNumber;
+            episode.seID = 'S' + zeroPad(seasonNumber) + 'E' + zeroPad(episodeNumber);
             episode.title = $cells[2].text().replace(/"/g, '');
             episode.director = $cells[3].text();
             episode.writer = $cells[4].text();

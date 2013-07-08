@@ -8,6 +8,8 @@ TestCase('wikipedia scraper', {
         assertEquals(1, output.length);
         assertEquals(1, output[0].length);
         var episode = output[0][0];
+        assertEquals(1, episode.season);
+        assertEquals(1, episode.episode);
         assertEquals('S01E01', episode.seID);
         assertEquals('Pilot', episode.title);
         assertEquals('Brian Holt', episode.director);
