@@ -19,12 +19,23 @@
         return interpolate('{seID}*{title}*{originalAirDate}*{productionCode}*{description}', this);
     }
 
+    function removeFootnotes(episode) {
+        var key;
+        for (key in episode) {
+            if (episode.hasOwnProperty(key) && typeof episode[key] === 'string') {
+                episode[key] = episode[key].replace(/\[[^\]]*\]/g, '');
+            }
+        }
+        return episode;
+    }
+
     function episodeCurrier(seasonNumber) {
         return function (i, e) {
             var $e = $(e),
                 episode = {},
                 $cells = $e.find('th, td').map(function (i, e) { return $(e); }),
-                episodeNumber = $cells[1].text();
+                episodeNumber = $cells[1].text(),
+                key;
 
             episode.season = seasonNumber;
             episode.episode = episodeNumber;
@@ -37,6 +48,8 @@
             episode.description = $e.next().find('.description').text();
             episode.toString = episodeToString;
 
+            removeFootnotes(episode);
+
             return episode;
         };
     }
@@ -45,14 +58,17 @@
         return this.map(function () { return this.toString(); }).get().join('\n');
     }
 
-    function season(i, e) {
-        var episodes = $(e).find('tr.vevent').map(episodeCurrier(i + 1));
+    function season(i, e, options) {
+        var episodes = $(e).find('tr.vevent').map(episodeCurrier(options.season ? options.season : i + 1));
         episodes.toString = arrayToString;
         return episodes;
     }
 
-    function init() {
-        var seasons = $('table.wikitable.plainrowheaders').map(season);
+    function init(options) {
+        var options = options || {},
+            seasons = $('table.wikitable.plainrowheaders').map(function (i, e) {
+                return season(i, e, options);
+            });
         seasons.toString = arrayToString;
         return seasons;
     }

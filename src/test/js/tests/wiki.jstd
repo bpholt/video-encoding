@@ -34,6 +34,16 @@ TestCase('wikipedia scraper', {
         assertEquals(output[0].toString() + '\n' + output[1].toString(), output.toString());
     },
 
+    'test that we can override the season number': function () {
+        $('body').html(this.markup['singleRow']);
+
+        var output = wikiscrape({
+            season: 2
+        });
+
+        assertEquals('season number', 2, output[0][0].season);
+    },
+
     markup: {
         singleRow:
             '<table class="wikitable plainrowheaders">' +
@@ -44,7 +54,7 @@ TestCase('wikipedia scraper', {
                     '<td><a href="/wiki/Brian_Holt" title="Brian Holt">Brian Holt</a></td>' +
                     '<td><a href="/wiki/Devon_Sharma" title="Devon Sharma">Devon Sharma</a></td>' +
                     '<td>September&nbsp;10,&nbsp;2013<span style="display:none">&nbsp;(<span class="bday dtstart published updated">2013-09-10</span>)</span></td>' +
-                    '<td id="pc1BPH42">1BPH42</td>' +
+                    '<td id="pc1BPH42">1BPH42<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
                     '<td>51.98<sup id="cite_ref-3" class="reference"><a href="#cite_note-3"><span>[</span>3<span>]</span></a></sup></td>' +
                 '</tr>' +
                 '<tr>' +

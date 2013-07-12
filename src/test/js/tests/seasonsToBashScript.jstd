@@ -32,7 +32,7 @@ TestCase('seasons to bash script', {
                         writer: 'Devon \n    Sharma',
                         originalAirDate: '2013-\n09-10',
                         productionCode: '1B\nPH42',
-                        description: 'This sh\now is great!'
+                        description: 'Full Sentence. This sh\now is great!'
                     }
                 ]
             ];
@@ -46,6 +46,97 @@ TestCase('seasons to bash script', {
         assertEquals("seasons converted to commands", this.shbang + this.baseCommand + ' ' + this.filename, output);
     },
 
+    'test long description is truncated for short description field': function () {
+        var seasonsWithLongDescription = this.seasons,
+            longDescription = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut non turpis urna. Nullam ' +
+                'in vestibulum libero. Proin in nibh luctus, semper velit eu, bibendum neque. Proin a commodo quam. ' +
+                'Donec consequat leo a dui ultrices malesuada. Etiam pharetra turpis duis.',
+            truncatedDescription = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut non turpis urna. ' +
+                'Nullam in vestibulum libero. Proin in nibh luctus, semper velit eu, bibendum neque. Proin a commodo ' +
+                'quam. Donec consequat leo a dui ultrices malesuada.',
+            baseCommand = this.baseCommandWithLongDescription.replace('{longDescription}', longDescription)
+                                                             .replace('{shortDescription}', truncatedDescription);
+
+
+        assertEquals('is long description 256 chars?', 256, longDescription.length);
+        assertTrue('is truncated description <= 255 chars?', truncatedDescription.length <= 255);
+
+        seasonsWithLongDescription[0][0].description = longDescription;
+
+        var output = convertToBashScript(seasonsWithLongDescription);
+        assertEquals("long description properly handled", baseCommand + ' ' + this.filename, output);
+    },
+
+    'test description is not truncated when exactly 255 characters': function () {
+        var description = 'Maecenas quis elit at est sollicitudin iaculis eu ultricies purus. Quisque sed enim non ' +
+                'risus egestas luctus. Nunc mattis tristique leo, quis accumsan dolor sagittis eu. Maecenas ' +
+                'ultricies a turpis ac sodales. Curabitur ultrices nibh eu sem ornare nullam.',
+            baseCommand = this.baseCommandWithReplaceableDescription.replace('{description}', description);
+
+        assertEquals('is long description 255 chars?', 255, description.length);
+
+        this.seasons[0][0].description = description;
+
+        var output = convertToBashScript(this.seasons);
+        assertEquals("long description properly handled", baseCommand + ' ' + this.filename, output);
+    },
+
+    'test quotes in description are replaced by smartquotes': function () {
+        var description = 'what " the\' heck\' " "',
+            baseCommand = this.baseCommandWithReplaceableDescription.replace('{description}', 'what “ the’ heck’ ” “');
+
+        this.seasons[0][0].description = description;
+
+        var output = convertToBashScript(this.seasons);
+        assertEquals("long description properly handled", baseCommand + ' ' + this.filename, output);
+    },
+
+    'test if multiple seasons are input, then caller can provide multiple pictures': function () {
+        var multipleSeasons = [
+                [
+                    {
+                        season: 1,
+                        episode: 3,
+                        seID: 'S01E03',
+                        title: 'my title',
+                        director: 'Brian Holt',
+                        writer: 'Devon Sharma',
+                        originalAirDate: '2013-09-10',
+                        productionCode: '1BPH42',
+                        description: 'Full Sentence. This show is great! '
+                    }
+                ],
+                [
+                    {
+                        season: 1,
+                        episode: 3,
+                        seID: 'S02E03',
+                        title: 'my title',
+                        director: 'Brian Holt',
+                        writer: 'Devon Sharma',
+                        originalAirDate: '2013-09-10',
+                        productionCode: '1BPH42',
+                        description: 'Full Sentence. This show is great! '
+                    }
+                ]
+            ], options = {
+                show: 'Brian’s Show',
+                picture: ['/path/to/season1_picture', '/path/to/season2_picture'],
+                network: 'NBC'
+            },
+            commandAddition = function (i) {
+                return ' -S "' + options.show
+                    + '" -P "' + options.picture[i]
+                    + '" -N "' + options.network + '"'
+                    + ' ' + multipleSeasons[i][0].seID + '.m4v';
+            },
+            expected = this.baseCommand + commandAddition(0) + '\n' + this.baseCommand + commandAddition(1),
+            output;
+
+        output = convertToBashScript(multipleSeasons, options);
+        assertEquals("seasons converted to commands", expected, output);
+    },
+
     seasons: [
         [
             {
@@ -57,13 +148,15 @@ TestCase('seasons to bash script', {
                 writer: 'Devon Sharma',
                 originalAirDate: '2013-09-10',
                 productionCode: '1BPH42',
-                description: 'This show is great!'
+                description: 'Full Sentence. This show is great! '
             }
         ]
     ],
 
     shbang: '#!/bin/sh\n',
-    baseCommand: 'mp4tags -n 1 -M 3 -s "my title" -a "Brian Holt" -w "Devon Sharma" -o "1BPH42" -m "This show is great!"',
+    baseCommand: 'mp4tags -n 1 -M 3 -s "my title" -a "Brian Holt" -w "Devon Sharma" -o "1BPH42" -m "Full Sentence. This show is great!" -i "tvshow" -H 1',
+    baseCommandWithReplaceableDescription: 'mp4tags -n 1 -M 3 -s "my title" -a "Brian Holt" -w "Devon Sharma" -o "1BPH42" -m "{description}" -i "tvshow" -H 1',
+    baseCommandWithLongDescription: 'mp4tags -n 1 -M 3 -s "my title" -a "Brian Holt" -w "Devon Sharma" -o "1BPH42" -m "{shortDescription}" -l "{longDescription}" -i "tvshow" -H 1',
     filename: 'S01E03.m4v'
 
 });
